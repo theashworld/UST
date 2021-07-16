@@ -59,7 +59,7 @@ def mc_dropout_evaluate(model, gpus, classes, x, T=30, batch_size=256, training=
 
             for batch in dist_data:
                 pred = distributed_eval_step(batch)
-                print(type(pred), pred)
+                # print(type(pred), pred)
                 for gpu in range(gpus):
                     # y_pred.extend(pred.values[gpu])
                     y_pred.extend(pred)
