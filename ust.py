@@ -50,18 +50,23 @@ def mc_dropout_evaluate(model, gpus, classes, x, T=30, batch_size=256, training=
         y_pred = []
         with strategy.scope():
             def eval_step(inputs):
-                return model(inputs, training=training).numpy()#[:,0]
+                # return model(inputs, training=training).numpy()#[:,0]
+                return model(inputs, training=training)
 
+            @tf.function
             def distributed_eval_step(dataset_inputs):
-                return strategy.experimental_run_v2(eval_step, args=(dataset_inputs,))
+                return strategy.run(eval_step, args=(dataset_inputs,))
 
             for batch in dist_data:
                 pred = distributed_eval_step(batch)
+                print(type(pred), pred)
                 for gpu in range(gpus):
-                    y_pred.extend(pred.values[gpu])
+                    # y_pred.extend(pred.values[gpu])
+                    y_pred.extend(pred)
 
         #converting logits to probabilities
         y_T[i] = tf.nn.softmax(np.array(y_pred))
+
 
     logger.info (y_T)
 
